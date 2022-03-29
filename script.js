@@ -49,5 +49,3 @@ function attachOperator(operator) {
 function resetScreen() {
   output.innerText = ''
 }
-
-console.log((25+2)*10/56);
