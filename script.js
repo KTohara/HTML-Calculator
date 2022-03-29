@@ -22,6 +22,32 @@ const operate = (operator, a, b) => {
     case 'divide': return divide(a, b);
   };
 };
+const input = document.getElementById('input');
+const output = document.getElementById('output');
+const numberButtons = document.querySelectorAll('.number');
+const operatorButtons = document.querySelectorAll('.operator');
 
-// console.log(operate('divide', -10, 5));
+numberButtons.forEach((button) =>
+  button.addEventListener('click', () => attachNumber(button.innerText))
+)
 
+operatorButtons.forEach((button) =>
+  button.addEventListener('click', () => attachOperator(button.innerText))
+)
+
+function attachNumber(number) {
+  if (output.innerText === '0') {
+    resetScreen();
+  }
+  output.innerText += number
+}
+
+function attachOperator(operator) {
+  
+}
+
+function resetScreen() {
+  output.innerText = ''
+}
+
+console.log((25+2)*10/56);
