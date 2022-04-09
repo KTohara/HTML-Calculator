@@ -148,45 +148,15 @@ function keyboardInput(e) {
   if (operatorMathArray.includes(e.key)) attachOperator(convertOperator(e.key));
   if (e.key == 'Escape') clear();
   if (e.key == '.') attachDecimal();
-  if (e.key == '=' || e.key == 'Enter') updateDisplay();
+  if (e.key == '=' || e.key == 'Enter') updateEquals();
 }
 
-function updateDisplay() {
+function updateEquals() {
   input.innerHTML = output.innerHTML;
   inputNum = output.innerHTML;
   output.innerHTML = '';
   inputEquation = [input.innerHTML];
-  
-  // const lastElement = inputEquation[inputEquation.length - 1];
-
-  // if (operatorArray.includes(lastElement)) {
-  //   inputEquation.pop();
-  //   inputNum = evaluate(inputEquation);
-  //   input.innerHTML = inputNum;
-  //   output.innerHTML = '';
-  // } else {
-  //   inputNum = 
-  //   output.innerHTML = evaluate(inputEquation);
-  // }
-
-  // if (inputEquation.length <= 1) {
-  //   output.innerHTML = '';
-  // }
 }
-
-// Helper Functions
-
-function roundNum(num) {
-  return Math.round((num + Number.EPSILON) * 100000) / 100000;
-}
-
-function resetInput() {
-  input.innerHTML = '';
-};
-
-function resetOutput() {
-  output.innerHTML = '';
-};
 
 function updateOutput() {
   if (inputEquation.length <= 1) {
@@ -197,6 +167,12 @@ function updateOutput() {
     input.innerHTML = inputEquation.join(' ');
     output.innerHTML = evaluate(inputEquation);
   }
+}
+
+// Helper Functions
+
+function roundNum(num) {
+  return Math.round((num + Number.EPSILON) * 100000) / 100000;
 }
 
 const operate = (operator, a, b) => {
