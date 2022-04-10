@@ -5,7 +5,6 @@ let inputNum = '';
 let firstNum = '';
 let secondNum = '';
 let currentOperator = null;
-let resetDisplay = false;
 let lastOperator = '';
 
 const input = document.getElementById('input');
@@ -24,18 +23,19 @@ const operatorMathArray = ['*', '/', '+', '-']
 // Event Listeners
 
 numberButtons.forEach((button) =>
-  button.addEventListener('click', () => attachNumber(button.innerHTML))
+  button.onclick = () => attachNumber(button.innerHTML)
 );
 
-operatorButtons.forEach((button) =>
-  button.addEventListener('click', () => attachOperator(button.innerHTML))
+operatorButtons.forEach((button) => 
+  button.onclick = () => attachOperator(button.innerHTML)
 );
 
-window.addEventListener('keydown', keyboardInput)
-clearButton.addEventListener('click', clear);
-inverse.addEventListener('click', invertSign);
-decimal.addEventListener('click', attachDecimal);
-equals.addEventListener('click', updateDisplay);
+// window.onkeydown = () => keyboardInput();
+window.onkeydown = (e) => keyboardInput(e);
+clearButton.onclick = () => clear();
+inverse.onclick = () => invertSign();
+decimal.onclick = () => attachDecimal();
+equals.onclick = () => updateEquals();
 
 // Event Listener Functions
 
@@ -61,8 +61,9 @@ function attachNumber(number) {
 function checkInputLength() {
   const inputTotal = input.innerHTML;
   length = inputTotal.length;
-  if (length > 20) {
-    input.innerHTML = inputTotal.slice(0, 20);
+  if (length > 22) {
+    input.innerHTML = inputTotal.slice(0, 22);
+    output.innerHTML = inputTotal.slice(0, 22);
   }
 }
 
@@ -92,10 +93,9 @@ function attachOperator(operator) {
 // clears the output and input display
 function clear() {
   input.innerHTML = '';
-  output.innerHTML = '0';
+  output.innerHTML = '';
   inputEquation = [];
   inputNum = '';
-  firstOperator = false;
 };
 
 // inverts the input into negative or positive, evaluates input
@@ -113,6 +113,17 @@ function attachDecimal() {
     inputNum += '.'
   };
   updateOutput();
+}
+
+function updateOutput() {
+  if (inputEquation.length <= 1) {
+    input.innerHTML = inputNum;
+    output.innerHTML = inputNum;
+  } else {
+    inputEquation.splice(-1, 1, inputNum);
+    input.innerHTML = inputEquation.join(' ');
+    output.innerHTML = evaluate(inputEquation);
+  }
 }
 
 // evaluates the current input
@@ -152,21 +163,11 @@ function keyboardInput(e) {
 }
 
 function updateEquals() {
+  if (output.innerHTML === '') return;
   input.innerHTML = output.innerHTML;
   inputNum = output.innerHTML;
-  output.innerHTML = '';
+  output.innerHTML = null;
   inputEquation = [input.innerHTML];
-}
-
-function updateOutput() {
-  if (inputEquation.length <= 1) {
-    input.innerHTML = inputNum;
-    output.innerHTML = inputNum;
-  } else {
-    inputEquation.splice(-1, 1, inputNum);
-    input.innerHTML = inputEquation.join(' ');
-    output.innerHTML = evaluate(inputEquation);
-  }
 }
 
 // Helper Functions

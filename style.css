@@ -1,0 +1,92 @@
+:root {
+  --primary-light: rgb(230, 230, 230);
+  --secondary-light: rgb(200, 200, 200);
+  --primary-dark: rgb(211, 224, 236);
+  --secondary-dark: rgb(80, 80, 80);
+  --green: rgb(175, 223, 193);
+  --blue: rgb(153, 184, 229);
+}
+
+*, *::before, *::after {
+  box-sizing: boder-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: var(--secondary-light);
+  font-family: oswald;
+  font-weight: 300;
+  font-size: 20px;
+}
+
+button {
+  background-color: var(--secondary-light);
+  border: none;
+  width: 50px;
+  height: 50px;
+  margin: 0.5em;
+  border-radius: 50%;
+  box-shadow: 2px 3px 3px 0 rgba(34, 33, 81, 0.25);
+  transition: all 0.15s ease-in-out;
+}
+
+button:hover {
+  transform: translateY(-4px);
+}
+
+button:active {
+  transform: translateY(1px);
+  border-radius: 10px;
+}
+
+#allclear {
+  background-color: var(--green);
+}
+
+.operator,
+#inverse,
+#equals {
+  background-color: var(--blue);
+}
+
+
+.calc-body {
+  background-color: var(--primary-light);
+  width: 300px;
+  border-radius: 32px;
+  margin: 1em auto;
+  display: flex;
+  justify-content: space-evenly;
+  flex-direction: column;
+  border-radius: 32px;
+  box-shadow: 28px 28px 28px 0 rgba(34, 33, 81, 0.25);
+}
+
+.display {
+  background-color: var(--primary-dark);
+  text-align: right;
+  width: 80%;
+  height: 75px;
+  border-radius: 10px;
+  margin: 1em auto;
+  padding: .5em;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: inset 2px 3px 5px 0 rgba(34, 33, 81, 0.25);
+}
+
+.input,
+.output {
+  margin: 0 0.5em;
+}
+
+.button-grid {
+  /* width: auto; */
+  margin: 0.5em auto;
+  display: grid;
+  grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr 1fr;
+  gap: 0.1em;
+}
+
