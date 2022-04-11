@@ -38,7 +38,19 @@ button {
 }
 
 button:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
+}
+
+.grey:hover {
+  background-color: rgb(175, 175, 175);
+}
+
+.blue:hover {
+  background-color: rgb(122, 150, 192);
+}
+
+.green:hover {
+  background-color: rgb(129, 194, 154);
 }
 
 button:active {
@@ -53,13 +65,13 @@ footer {
   text-align: center;
 }
 
-#allclear {
+.allclear {
   background-color: var(--green);
 }
 
 .operator,
-#inverse,
-#equals {
+.inverse,
+.equals {
   background-color: var(--blue);
 }
 

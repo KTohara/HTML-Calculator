@@ -12,8 +12,6 @@ const decimal = document.getElementById('decimal');
 const backspace = document.getElementById('backspace');
 const equals = document.getElementById('equals');
 
-const allButtons = Array.from(document.querySelectorAll('button'));
-const allButtonsExceptClear = allButtons.filter(button => button.allclear)
 const numberButtons = document.querySelectorAll('.number');
 const operatorButtons = Array.from(document.querySelectorAll('.operator'));
 const operatorArray = operatorButtons.map(operator => operator.dataset['key']);
@@ -39,10 +37,15 @@ equals.onclick = () => updateEquals();
 
 // Event Listener Functions
 
-// attaches a number to the input display
 function attachNumber(number) {
+  /*
+    attaches a number to the input display
+      if input number is greater than 1, and is not an operator
+      else add a new number into the equation
+      update output
+      check input length
+  */
   const lastElement = inputEquation[inputEquation.length - 1];
-
   if (inputNum > 1 || !operatorArray.includes(lastElement)){
     inputNum += number;
     inputEquation.splice(-1, 1, inputNum);
@@ -50,38 +53,33 @@ function attachNumber(number) {
     inputNum += number;
     inputEquation.push(inputNum); 
   }
-  input.innerHTML = inputEquation.join('');
-  output.innerHTML = evaluate(inputEquation);
+  updateDisplay();
   checkInputLength();
 };
 
-// checks to see if input display is greater than 9 digits
-function checkInputLength() {
-  const inputTotal = input.innerHTML;
-  length = inputTotal.length;
-  if (length > 22) {
-    input.innerHTML = Number(inputNum).toExponential(2);
-    output.innerHTML = Number(inputNum).toExponential(2);
-  }
-}
-
-// if there is no current operator, adds an operator to the input equation
-// otherwise, evaluates current input equation in the output display
 function attachOperator(operator) {
+  /*
+    attach operator and evaluate input equation into output:
+      if operator is last element - replace operator in equation
+      if equation is empty or last element is 0 - add 0 and operator to equation
+      if number exists, but not operator - add operator to equation
+    update input
+    check input length
+  */
   const lastElement = inputEquation[inputEquation.length - 1];
-  if (operatorArray.includes(lastElement)) { // if operator exists - replace operator
+  if (operatorArray.includes(lastElement)) {
     inputEquation.splice(-1, 1, operator);
     input.innerHTML = inputEquation.join('');
     return;
   }
-  if (inputEquation.length === 0 || lastElement === '0.') { // if operator does not exist - add 0 and operator
+  if (inputEquation.length === 0 || lastElement === '0.') {
     inputEquation.pop();
     input.innerHTML = `0${operator}`;
     inputEquation.push('0');
     inputEquation.push(operator);
     inputNum = '';
     output.innerHTML = evaluate(inputEquation);
-  } else { // if number exists and operator does not exist - add operator
+  } else {
     input.innerHTML += operator;
     inputEquation.push(operator);
     inputNum = '';
@@ -90,24 +88,43 @@ function attachOperator(operator) {
   checkInputLength();
 };
 
-// clears the output and input display
+function checkInputLength() {
+  // if input display is greater than 21 digits - convert to exponent
+  const inputTotal = input.innerHTML;
+  length = inputTotal.length;
+  if (length > 21) {
+    input.innerHTML = Number(inputNum).toExponential(2);
+    output.innerHTML = Number(inputNum).toExponential(2);
+  }
+}
+
 function clear() {
+  // clears the output and input display
   input.innerHTML = '';
   output.innerHTML = '';
   inputEquation = [];
   inputNum = '';
 };
 
-// inverts the input into negative or positive, evaluates input
 function invertSign() {
+  /*
+    if there is no last number, or is a 0 (with or without decimal) - return
+    invert number, and replace into equation
+    update output
+  */
   if (inputNum === '' || inputNum === '0.') return;
   inputNum = (inputNum * -1).toString();
   inputEquation.splice(-1, 1, inputNum);
-  updateOutput();
+  updateDisplay();
 };
 
 // attach decimal point if there is none in the output
 function attachDecimal() {
+  /*
+    if last element of equation is an operator - attach decimal as '0.'
+    if the last number does not have a decimal - attach decimal to number
+    if there is no last number - attach decimal as '0.'
+  */
   const lastElement = inputEquation[inputEquation.length - 1];
   if (operatorArray.includes(lastElement)) { // if operator is last element in equation
     inputNum = '0.';
@@ -120,24 +137,33 @@ function attachDecimal() {
     inputNum = '0.'
     inputEquation.splice(-1, 1, inputNum);
   }
-  updateOutput();
+  updateDisplay();
 }
 
-function updateOutput() {
-  // if equation is just 1 number - input and output become number
+function updateDisplay() {
+  /*
+    if equation is only 1 number; input and output become the number
+    else the input is updated, and output is calculated using evaluate()
+  */
   if (inputEquation.length <= 1) {
     input.innerHTML = inputNum;
     output.innerHTML = inputNum;
-  } else { // if equation is more than 1 number - input becomes evaluate() output
+  } else {
     inputEquation = inputEquation.filter(el => el);
     input.innerHTML = inputEquation.join('');
-    
     output.innerHTML = evaluate(inputEquation);
   }
 }
 
 // evaluates the current input
 function evaluate(equation) {
+  /*
+    filters any empty space if any
+    if equation length is incomplete and less than 3, return the first number
+    if equation ends with an operator, remove operator
+    loops calculation to PEMDAS rule
+    returns final number
+  */
   let calc = equation.filter(el => el)
                      .slice(0);
   if (calc.length < 3) {
@@ -147,7 +173,6 @@ function evaluate(equation) {
   if (operatorArray.includes(lastElement)) {
     calc = calc.slice(-1, 1);
   }
-  
   // loops until first part of PEMDAS is complete
   while (calc.includes("x") || calc.includes("÷") || calc.includes("%")) {
     const operator = calc.find(el => el === "x" || el === "÷" || el === "%");
@@ -158,7 +183,6 @@ function evaluate(equation) {
 
     calc.splice(operatorIdx - 1, 3, total);
   }
-
   // loops until second part of PEMDAS is complete
   while (calc.includes("+") || calc.includes("-")) {
     const operator = calc.find(el => el === "+" || el === "-");
@@ -184,29 +208,35 @@ function keyboardInput(e) {
 }
 
 function deleteLastInput() {
+  /*
+    checks to see if equals/enter was pressed
+      - if yes, uses old equation for deletion
+    if equation is empty, return
+    deletes last entry depending on number or operator
+    updates output
+  */
   if (tempEquation.length >= 1) {
     inputEquation = tempEquation;
   }
-
   inputEquation = inputEquation.filter(el => el)
                                .slice(0);
   if (inputEquation.length === 0) return;
   let lastElement = inputEquation[inputEquation.length - 1];
-  if (lastElement === '%') {
-    inputEquation.splice(-1, 1);
-    inputNum = inputEquation[inputEquation.length - 1];
-    updateOutput();
-    tempEquation = [];
-    return;
-  }
   lastElement = lastElement.slice(0, -1);
   inputEquation.splice(-1, 1, lastElement);
   inputNum = lastElement;
-  updateOutput();
+  updateDisplay();
   tempEquation = [];
 }
 
 function updateEquals() {
+  /*
+    when enter or equals is pressed:
+      if the output is empty - return
+    sets temp equation
+      if the input equation is incomplete - update input, output, equation, number, and return
+    updates input, output, number, equation 
+  */
   if (output.innerHTML === '') return;
   tempEquation = inputEquation.slice(0);
   if (inputEquation.length < 3) {
@@ -217,16 +247,12 @@ function updateEquals() {
     return;
   }
   input.innerHTML = output.innerHTML;
-  inputNum = '';
   output.innerHTML = null;
+  inputNum = '';
   inputEquation = [input.innerHTML];
 }
 
 // Helper Functions
-
-function roundNum(num) {
-  return Math.round((num + Number.EPSILON) * 100000) / 100000;
-}
 
 const operate = (operator, a, b) => {
   a = Number(a);
