@@ -3,6 +3,7 @@
   --secondary-light: rgb(200, 200, 200);
   --primary-dark: rgb(211, 224, 236);
   --secondary-dark: rgb(80, 80, 80);
+  --background: rgba(69, 150, 187, 0.733);
   --green: rgb(175, 223, 193);
   --blue: rgb(153, 184, 229);
 }
@@ -13,14 +14,19 @@
   margin: 0;
 }
 
-body {
-  background-color: var(--secondary-light);
+* {
   font-family: oswald;
+}
+
+body {
+  background-color: var(--background);
   font-weight: 300;
   font-size: 20px;
 }
 
 button {
+  font-weight: 400;
+  font-size: 16px;
   background-color: var(--secondary-light);
   border: none;
   width: 50px;
@@ -37,7 +43,14 @@ button:hover {
 
 button:active {
   transform: translateY(1px);
-  border-radius: 10px;
+  border-radius: 15px;
+}
+
+footer {
+  position: fixed;
+  bottom: 3%;
+  width: 100%;
+  text-align: center;
 }
 
 #allclear {
@@ -50,17 +63,16 @@ button:active {
   background-color: var(--blue);
 }
 
-
 .calc-body {
   background-color: var(--primary-light);
   width: 300px;
   border-radius: 32px;
-  margin: 1em auto;
+  margin: 9em auto;
   display: flex;
   justify-content: space-evenly;
   flex-direction: column;
   border-radius: 32px;
-  box-shadow: 28px 28px 28px 0 rgba(34, 33, 81, 0.25);
+  box-shadow: 7px 7px 3px rgba(0, 10, 60, 0.25);
 }
 
 .display {
@@ -83,10 +95,14 @@ button:active {
 }
 
 .button-grid {
-  /* width: auto; */
   margin: 0.5em auto;
+  padding-bottom: 1.5em;
   display: grid;
   grid-template: 1fr 1fr 1fr / 1fr 1fr 1fr 1fr;
   gap: 0.1em;
 }
 
+@font-face {
+  font-family: "leaner-thin";
+  src: url(../calculator/font/leaner-thin.ttf);
+}
