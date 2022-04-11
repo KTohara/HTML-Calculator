@@ -58,13 +58,6 @@ button:active {
   border-radius: 15px;
 }
 
-footer {
-  position: fixed;
-  bottom: 3%;
-  width: 100%;
-  text-align: center;
-}
-
 .allclear {
   background-color: var(--green);
 }
