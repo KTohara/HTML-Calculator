@@ -40,13 +40,17 @@ equals.onclick = () => updateEquals();
 function attachNumber(number) {
   /*
     attaches a number to the input display
-      if input number is greater than 1, and is not an operator
+      if input number is 0 - replace number
+      if input number is greater than 1 or last element in equation is a number - concat number, replace with existing number in equation
       else add a new number into the equation
       update output
       check input length
   */
   const lastElement = inputEquation[inputEquation.length - 1];
-  if (inputNum > 1 || !operatorArray.includes(lastElement)){
+  if (inputNum === '0' || !operatorArray.includes(lastElement)) {
+    inputNum = number;
+    inputEquation.splice(-1, 1, inputNum);
+  } else if (inputNum > 1) {
     inputNum += number;
     inputEquation.splice(-1, 1, inputNum);
   } else if (inputNum === '') {
