@@ -47,10 +47,10 @@ function attachNumber(number) {
       check input length
   */
   const lastElement = inputEquation[inputEquation.length - 1];
-  if (inputNum === '0' || !operatorArray.includes(lastElement)) {
+  if (inputNum === '0') {
     inputNum = number;
     inputEquation.splice(-1, 1, inputNum);
-  } else if (inputNum > 1) {
+  } else if (inputNum > 1 || !operatorArray.includes(lastElement)) {
     inputNum += number;
     inputEquation.splice(-1, 1, inputNum);
   } else if (inputNum === '') {
@@ -108,6 +108,7 @@ function clear() {
   output.innerHTML = '';
   inputEquation = [];
   inputNum = '';
+  tempEquation = [];
 };
 
 function invertSign() {
@@ -247,6 +248,7 @@ function updateEquals() {
     input.innerHTML = evaluate(inputEquation);
     output.innerHTML = evaluate(inputEquation);
     inputEquation = [`${evaluate(inputEquation)}`];
+    tempEquation = inputEquation;
     inputNum = '';
     return;
   }
