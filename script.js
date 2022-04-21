@@ -65,6 +65,7 @@ function attachNumber(number) {
   }
   updateDisplay();
   checkInputLength();
+  tempEquation = [];
 };
 
 function attachOperator(operator) {
@@ -81,8 +82,7 @@ function attachOperator(operator) {
     inputEquation.splice(-1, 1, operator);
     input.innerHTML = inputEquation.join('');
     return;
-  }
-  if (inputEquation.length === 0 || lastElement === '0.' || lastElement === '') {
+  } else if (inputEquation.length === 0 || lastElement === '0.' || lastElement === '') {
     inputEquation.pop();
     input.innerHTML = `0${operator}`;
     inputEquation.push('0');
@@ -96,6 +96,7 @@ function attachOperator(operator) {
   }
   input.innerHTML = inputEquation.join('');
   checkInputLength()
+  tempEquation = [];
 };
 
 function clear() {
@@ -120,7 +121,7 @@ function invertSign() {
     update output
   */
   if (inputNum === '' || inputNum === '0.') return;
-  if (inputNum[0] === '-') {
+  else if (inputNum[0] === '-') {
     inputNum = inputNum.slice(1);
   } else {
     inputNum = '-' + inputNum;
@@ -150,6 +151,7 @@ function attachDecimal() {
   }
   updateDisplay();
   checkInputLength();
+  tempEquation = [];
 }
 
 function deleteLastInput() {
@@ -157,18 +159,19 @@ function deleteLastInput() {
     checks to see if equals/enter was pressed
       if yes, uses old equation for deletion
     if equation is empty, return
-    deletes last entry depending on number or operator
+    deletes last entry depending on decimal, number or operator
     updates output
   */
-  if (tempEquation.length >= 1) {
-    inputEquation = tempEquation;
-  }
+  if (tempEquation.length >= 1) inputEquation = tempEquation;
   inputEquation = inputEquation.filter(el => el)
   if (inputEquation.length === 0) return;
   let lastElement = inputEquation[inputEquation.length - 1]
     .replaceAll(',', '')
     .slice(0, -1);
-  if (lastElement === '' || lastElement === '-') {
+  if (lastElement.endsWith('.')) {
+    inputEquation.splice(-1, 1, lastElement);
+    inputNum = lastElement;
+  } else if (lastElement === '' || lastElement === '-') {
     inputEquation.pop();
     if (inputEquation.length === 1) {
       inputNum = inputEquation[0]
@@ -181,8 +184,8 @@ function deleteLastInput() {
     inputNum = lastElement;
   }
   updateDisplay();
-  tempEquation = [];
   checkInputLength();
+  tempEquation = [];
 }
 
 function updateEquals() {
@@ -241,10 +244,10 @@ const operate = (operator, a, b) => {
 
 function convertOperator(operator) {
   if (operator == '%') return '%';
-  if (operator == '+') return '+';
-  if (operator == '-') return '-';
-  if (operator == '*') return 'x';
-  if (operator == '/') return '÷';
+  else if (operator == '+') return '+';
+  else if (operator == '-') return '-';
+  else if (operator == '*') return 'x';
+  else if (operator == '/') return '÷';
 }
 
 function evaluate(equation) {
@@ -255,14 +258,12 @@ function evaluate(equation) {
     loops calculation to PEMDAS rule
     returns final number
   */
-  let calc = equation.slice()
-  if (calc.length < 3) {
-    return calc[0];
-  }
+  const calc = equation.slice()
   const lastElement = calc[calc.length - 1];
-  if (operatorArray.includes(lastElement)) {
-    calc = calc.slice(-1, 1);
-  }
+
+  if (calc.length < 3) return calc[0];
+  else if (operatorArray.includes(lastElement)) calc = calc.slice(-1, 1);
+
   // loops until first part of PEMDAS is complete
   while (calc.includes('x') || calc.includes('÷') || calc.includes('%')) {
     const operator = calc.find(el => el === 'x' || el === '÷' || el === '%');
@@ -283,9 +284,7 @@ function evaluate(equation) {
 
     calc.splice(operatorIdx - 1, 3, total);
   }
-  if (calc[0] === Infinity) {
-    return 'Divide by Zero';
-  }
+  if (calc[0] === Infinity) return 'Divide by Zero';
   return calc;
 }
 
@@ -327,9 +326,9 @@ function updateDisplay() {
 function keyboardInput(e) {
   e.preventDefault();
   if (e.key >= 0 && e.key <= 9 && disabled === false) attachNumber(e.key);
-  if (operatorMathArray.includes(e.key) && disabled === false) attachOperator(convertOperator(e.key));
-  if (e.key === 'Escape') clear();
-  if (e.key === '.' && disabled === false) attachDecimal();
-  if (e.key === '=' || e.key === 'Enter') updateEquals();
-  if (e.key === 'Backspace') deleteLastInput();
+  else if (operatorMathArray.includes(e.key) && disabled === false) attachOperator(convertOperator(e.key));
+  else if (e.key === 'Escape') clear();
+  else if (e.key === '.' && disabled === false) attachDecimal();
+  else if (e.key === '=' || e.key === 'Enter') updateEquals();
+  else if (e.key === 'Backspace') deleteLastInput();
 }
