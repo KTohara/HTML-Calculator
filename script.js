@@ -48,15 +48,19 @@ function attachNumber(number) {
       update output
       check input length
   */
+  inputNum = inputNum.replaceAll(',', '');
   const lastElement = inputEquation[inputEquation.length - 1];
   if (inputNum === '0') {
     inputNum = number;
+    inputNum = Number(inputNum).toLocaleString('en-US', {maximumFractionDigits: 20});
     inputEquation.splice(-1, 1, inputNum);
   } else if (inputNum > 1 || !operatorArray.includes(lastElement)) {
     inputNum += number;
+    inputNum = Number(inputNum).toLocaleString('en-US', {maximumFractionDigits: 20});
     inputEquation.splice(-1, 1, inputNum);
   } else if (inputNum === '') {
     inputNum += number;
+    inputNum = Number(inputNum).toLocaleString('en-US', {maximumFractionDigits: 20});
     inputEquation.push(inputNum); 
   }
   updateDisplay();
@@ -78,7 +82,7 @@ function attachOperator(operator) {
     input.innerHTML = inputEquation.join('');
     return;
   }
-  if (inputEquation.length === 0 || lastElement === '0.') {
+  if (inputEquation.length === 0 || lastElement === '0.' || lastElement === '') {
     inputEquation.pop();
     input.innerHTML = `0${operator}`;
     inputEquation.push('0');
@@ -98,20 +102,18 @@ function checkInputLength() {
   // if input display is greater than 21 digits - convert to exponent
   const inputTotal = input.innerHTML;
   length = inputTotal.length;
-  if (length >= 22) {
+  if (length >= 19) {
     disabledButtons.forEach(button => {
       button.disabled = true;
       disabled = true;
       return;
     });
-  } else if (length <= 21) {
+  } else if (disabled === true) {
     disabledButtons.forEach(button => {
       button.disabled = false;
       disabled = false;
     });
   }
-    // input.innerHTML = Number(inputNum).toExponential(2);
-    // output.innerHTML = Number(inputNum).toExponential(2);
 }
 
 function clear() {
@@ -121,10 +123,12 @@ function clear() {
   inputEquation = [];
   inputNum = '';
   tempEquation = [];
-  disabledButtons.forEach(button => {
-    button.disabled = false;
-  });
-  disabled = false;
+  if (disabled === true) {
+    disabledButtons.forEach(button => {
+      button.disabled = false;
+    });
+    disabled = false;
+  }
 };
 
 function invertSign() {
@@ -144,7 +148,6 @@ function invertSign() {
   checkInputLength()
 };
 
-// attach decimal point if there is none in the output
 function attachDecimal() {
   /*
     if last element of equation is an operator - attach decimal as '0.'
@@ -164,7 +167,7 @@ function attachDecimal() {
     inputEquation.splice(-1, 1, inputNum);
   }
   updateDisplay();
-  checkInputLength()
+  checkInputLength();
 }
 
 function updateDisplay() {
@@ -176,9 +179,9 @@ function updateDisplay() {
     input.innerHTML = inputNum;
     output.innerHTML = inputNum;
   } else {
-    inputEquation = inputEquation.filter(el => el);
+    inputEquation = inputEquation.filter(el => el)
     input.innerHTML = inputEquation.join('');
-    output.innerHTML = evaluate(inputEquation);
+    output.innerHTML = evaluate(inputEquation).toLocaleString('en-US', {maximumFractionDigits: 4});
   }
 }
 
@@ -192,8 +195,7 @@ function evaluate(equation) {
     loops calculation to PEMDAS rule
     returns final number
   */
-  let calc = equation.filter(el => el)
-                     .slice(0);
+  let calc = equation.slice()
   if (calc.length < 3) {
     return calc[0];
   }
@@ -205,12 +207,12 @@ function evaluate(equation) {
   while (calc.includes('x') || calc.includes('÷') || calc.includes('%')) {
     const operator = calc.find(el => el === 'x' || el === '÷' || el === '%');
     const operatorIdx = calc.indexOf(operator);
-    const num1 = calc[operatorIdx - 1];
-    const num2 = calc[operatorIdx + 1];
-    if (num2 === '0' && operator === '÷') {
-      clear();
-      return 'Divide by Zero';
-    }
+    const num1 = calc[operatorIdx - 1].toLocaleString('en-US').replaceAll(',', '');
+    const num2 = calc[operatorIdx + 1].toLocaleString('en-US').replaceAll(',', '');
+    // if ((num2 === '0' || num2 === '-0') && operator === '÷') {
+    //   clear();
+    //   return 'Divide by Zero';
+    // }
     const total = operate(operator, num1, num2);
 
     calc.splice(operatorIdx - 1, 3, total);
@@ -219,14 +221,14 @@ function evaluate(equation) {
   while (calc.includes('+') || calc.includes('-')) {
     const operator = calc.find(el => el === '+' || el === '-');
     const operatorIdx = calc.indexOf(operator);
-    const num1 = calc[operatorIdx - 1];
-    const num2 = calc[operatorIdx + 1];
+    const num1 = calc[operatorIdx - 1].toLocaleString('en-US').replaceAll(',', '');
+    const num2 = calc[operatorIdx + 1].toLocaleString('en-US').replaceAll(',', '');
     const total = operate(operator, num1, num2);
 
     calc.splice(operatorIdx - 1, 3, total);
   }
-  if (calc > 100000000000000000000) {
-    return Infinity;
+  if (calc[0] === Infinity) {
+    return 'Divide by Zero';
   }
   return calc;
 }
@@ -250,20 +252,26 @@ function deleteLastInput() {
     deletes last entry depending on number or operator
     updates output
   */
-    // checkInputLength();
-  if (inputEquation[0] === 'Infinity') {
-    clear()
-    return;
-  } else if (tempEquation.length >= 1) {
+  if (tempEquation.length >= 1) {
     inputEquation = tempEquation;
   }
   inputEquation = inputEquation.filter(el => el)
-                               .slice(0);
   if (inputEquation.length === 0) return;
-  let lastElement = inputEquation[inputEquation.length - 1];
-  lastElement = lastElement.slice(0, -1);
-  inputEquation.splice(-1, 1, lastElement);
-  inputNum = lastElement;
+  let lastElement = inputEquation[inputEquation.length - 1]
+    .replaceAll(',', '')
+    .slice(0, -1);
+  if (lastElement === '' || lastElement === '-') {
+    inputEquation.pop();
+    if (inputEquation.length === 1) {
+      inputNum = inputEquation[0]
+    } else {
+      inputNum = '';
+    }
+  } else {
+    lastElement = Number(lastElement).toLocaleString('en-US', {maximumFractionDigits: 20})
+    inputEquation.splice(-1, 1, lastElement);
+    inputNum = lastElement;
+  }
   updateDisplay();
   tempEquation = [];
   checkInputLength();
@@ -272,13 +280,28 @@ function deleteLastInput() {
 function updateEquals() {
   /*
     when enter or equals is pressed:
+      if the output is 'Divide by Zero' - reset all, except tempEquation to allow deleteLastInput()
       if the output is empty - return
     sets temp equation
       if the input equation is incomplete - update input, output, equation, number, and return
     updates input, output, number, equation 
   */
+  if (output.innerHTML === 'Divide by Zero') {
+    input.innerHTML = '';
+    output.innerHTML = 'Divide by Zero';
+    inputEquation = [];
+    inputNum = '';
+    tempEquation = [];
+    if (disabled === true) {
+      disabledButtons.forEach(button => {
+        button.disabled = false;
+      });
+      disabled = false;
+    }
+    return;
+  }
   if (output.innerHTML === '') return;
-  tempEquation = inputEquation.slice(0);
+  tempEquation = inputEquation.slice();
   if (inputEquation.length < 3) {
     input.innerHTML = evaluate(inputEquation);
     output.innerHTML = evaluate(inputEquation);
@@ -291,6 +314,7 @@ function updateEquals() {
   output.innerHTML = null;
   inputNum = '';
   inputEquation = [input.innerHTML];
+  checkInputLength();
 }
 
 // Helper Functions
