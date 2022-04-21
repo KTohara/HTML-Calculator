@@ -98,24 +98,6 @@ function attachOperator(operator) {
   checkInputLength()
 };
 
-function checkInputLength() {
-  // if input display is greater than 19 digits - convert to exponent
-  const inputTotal = input.innerHTML;
-  length = inputTotal.length;
-  if (length >= 19) {
-    disabledButtons.forEach(button => {
-      button.disabled = true;
-      disabled = true;
-      return;
-    });
-  } else if (disabled === true) {
-    disabledButtons.forEach(button => {
-      button.disabled = false;
-      disabled = false;
-    });
-  }
-}
-
 function clear() {
   // clears the output and input display
   input.innerHTML = '';
@@ -170,84 +152,10 @@ function attachDecimal() {
   checkInputLength();
 }
 
-function updateDisplay() {
-  /*
-    if equation is only 1 number; input and output become the number
-    else the input is updated, and output is calculated using evaluate()
-  */
-  if (inputEquation.length <= 1) {
-    input.innerHTML = inputNum;
-    output.innerHTML = inputNum;
-  } else {
-    inputEquation = inputEquation.filter(el => el)
-    input.innerHTML = inputEquation.join('');
-    output.innerHTML = evaluate(inputEquation).toLocaleString('en-US', {maximumFractionDigits: 4});
-  }
-}
-
-// evaluates the current input
-function evaluate(equation) {
-  // checkInputLength();
-  /*
-    filters any empty space if any
-    if equation length is incomplete and less than 3, return the first number
-    if equation ends with an operator, remove operator
-    loops calculation to PEMDAS rule
-    returns final number
-  */
-  let calc = equation.slice()
-  if (calc.length < 3) {
-    return calc[0];
-  }
-  const lastElement = calc[calc.length - 1];
-  if (operatorArray.includes(lastElement)) {
-    calc = calc.slice(-1, 1);
-  }
-  // loops until first part of PEMDAS is complete
-  while (calc.includes('x') || calc.includes('÷') || calc.includes('%')) {
-    const operator = calc.find(el => el === 'x' || el === '÷' || el === '%');
-    const operatorIdx = calc.indexOf(operator);
-    const num1 = calc[operatorIdx - 1].toLocaleString('en-US').replaceAll(',', '');
-    const num2 = calc[operatorIdx + 1].toLocaleString('en-US').replaceAll(',', '');
-    // if ((num2 === '0' || num2 === '-0') && operator === '÷') {
-    //   clear();
-    //   return 'Divide by Zero';
-    // }
-    const total = operate(operator, num1, num2);
-
-    calc.splice(operatorIdx - 1, 3, total);
-  }
-  // loops until second part of PEMDAS is complete
-  while (calc.includes('+') || calc.includes('-')) {
-    const operator = calc.find(el => el === '+' || el === '-');
-    const operatorIdx = calc.indexOf(operator);
-    const num1 = calc[operatorIdx - 1].toLocaleString('en-US').replaceAll(',', '');
-    const num2 = calc[operatorIdx + 1].toLocaleString('en-US').replaceAll(',', '');
-    const total = operate(operator, num1, num2);
-
-    calc.splice(operatorIdx - 1, 3, total);
-  }
-  if (calc[0] === Infinity) {
-    return 'Divide by Zero';
-  }
-  return calc;
-}
-
-// Keyboard Support
-function keyboardInput(e) {
-  e.preventDefault();
-  if (e.key >= 0 && e.key <= 9 && disabled === false) attachNumber(e.key);
-  if (operatorMathArray.includes(e.key) && disabled === false) attachOperator(convertOperator(e.key));
-  if (e.key === 'Escape') clear();
-  if (e.key === '.' && disabled === false) attachDecimal();
-  if (e.key === '=' || e.key === 'Enter') updateEquals();
-  if (e.key === 'Backspace') deleteLastInput();
-}
-
 function deleteLastInput() {
   /*
     checks to see if equals/enter was pressed
-      - if yes, uses old equation for deletion
+      if yes, uses old equation for deletion
     if equation is empty, return
     deletes last entry depending on number or operator
     updates output
@@ -337,4 +245,91 @@ function convertOperator(operator) {
   if (operator == '-') return '-';
   if (operator == '*') return 'x';
   if (operator == '/') return '÷';
+}
+
+function evaluate(equation) {
+  /*
+    filters any empty space if any
+    if equation length is incomplete and less than 3, return the first number
+    if equation ends with an operator, remove operator
+    loops calculation to PEMDAS rule
+    returns final number
+  */
+  let calc = equation.slice()
+  if (calc.length < 3) {
+    return calc[0];
+  }
+  const lastElement = calc[calc.length - 1];
+  if (operatorArray.includes(lastElement)) {
+    calc = calc.slice(-1, 1);
+  }
+  // loops until first part of PEMDAS is complete
+  while (calc.includes('x') || calc.includes('÷') || calc.includes('%')) {
+    const operator = calc.find(el => el === 'x' || el === '÷' || el === '%');
+    const operatorIdx = calc.indexOf(operator);
+    const num1 = calc[operatorIdx - 1].toLocaleString('en-US').replaceAll(',', '');
+    const num2 = calc[operatorIdx + 1].toLocaleString('en-US').replaceAll(',', '');
+    const total = operate(operator, num1, num2);
+
+    calc.splice(operatorIdx - 1, 3, total);
+  }
+  // loops until second part of PEMDAS is complete
+  while (calc.includes('+') || calc.includes('-')) {
+    const operator = calc.find(el => el === '+' || el === '-');
+    const operatorIdx = calc.indexOf(operator);
+    const num1 = calc[operatorIdx - 1].toLocaleString('en-US').replaceAll(',', '');
+    const num2 = calc[operatorIdx + 1].toLocaleString('en-US').replaceAll(',', '');
+    const total = operate(operator, num1, num2);
+
+    calc.splice(operatorIdx - 1, 3, total);
+  }
+  if (calc[0] === Infinity) {
+    return 'Divide by Zero';
+  }
+  return calc;
+}
+
+function checkInputLength() {
+  // if input display is greater than 19 characters - disable buttons
+  const inputTotal = input.innerHTML;
+  length = inputTotal.length;
+  if (length >= 19) {
+    disabledButtons.forEach(button => {
+      button.disabled = true;
+      disabled = true;
+      return;
+    });
+  } else if (disabled === true) {
+    disabledButtons.forEach(button => {
+      button.disabled = false;
+      disabled = false;
+    });
+  }
+}
+
+function updateDisplay() {
+  /*
+    if equation is only 1 number; input and output become the number
+    else the input is updated, and output is calculated using evaluate()
+  */
+  if (inputEquation.length <= 1) {
+    input.innerHTML = inputNum;
+    output.innerHTML = inputNum;
+  } else {
+    inputEquation = inputEquation.filter(el => el)
+    input.innerHTML = inputEquation.join('');
+    output.innerHTML = evaluate(inputEquation).toLocaleString('en-US', {maximumFractionDigits: 4});
+  }
+}
+
+// Keyboard Support
+
+function keyboardInput(e) {
+  e.preventDefault();
+  if (e.key >= 0 && e.key <= 9 && disabled === false) attachNumber(e.key);
+  if (operatorMathArray.includes(e.key) && disabled === false) attachOperator(convertOperator(e.key));
+  if (e.key === 'Escape') clear();
+  if (e.key === '.' && disabled === false) attachDecimal();
+  if (e.key === '=' || e.key === 'Enter') updateEquals();
+  if (e.key === 'Backspace') deleteLastInput();
 }
