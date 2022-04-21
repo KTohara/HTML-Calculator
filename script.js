@@ -99,7 +99,7 @@ function attachOperator(operator) {
 };
 
 function checkInputLength() {
-  // if input display is greater than 21 digits - convert to exponent
+  // if input display is greater than 19 digits - convert to exponent
   const inputTotal = input.innerHTML;
   length = inputTotal.length;
   if (length >= 19) {
