@@ -3,6 +3,7 @@
 let inputEquation = [];
 let inputNum = '';
 let tempEquation = [];
+let disabled = false;
 
 const input = document.getElementById('input');
 const output = document.getElementById('output');
@@ -11,6 +12,7 @@ const inverse = document.getElementById('inverse');
 const decimal = document.getElementById('decimal');
 const backspace = document.getElementById('backspace');
 const equals = document.getElementById('equals');
+const disabledButtons = document.querySelectorAll('.disabled');
 
 const numberButtons = document.querySelectorAll('.number');
 const operatorButtons = Array.from(document.querySelectorAll('.operator'));
@@ -89,17 +91,27 @@ function attachOperator(operator) {
     inputNum = '';
   }
   input.innerHTML = inputEquation.join('');
-  checkInputLength();
+  checkInputLength()
 };
 
 function checkInputLength() {
   // if input display is greater than 21 digits - convert to exponent
   const inputTotal = input.innerHTML;
   length = inputTotal.length;
-  if (length > 21) {
-    input.innerHTML = Number(inputNum).toExponential(2);
-    output.innerHTML = Number(inputNum).toExponential(2);
+  if (length >= 22) {
+    disabledButtons.forEach(button => {
+      button.disabled = true;
+      disabled = true;
+      return;
+    });
+  } else if (length <= 21) {
+    disabledButtons.forEach(button => {
+      button.disabled = false;
+      disabled = false;
+    });
   }
+    // input.innerHTML = Number(inputNum).toExponential(2);
+    // output.innerHTML = Number(inputNum).toExponential(2);
 }
 
 function clear() {
@@ -109,6 +121,10 @@ function clear() {
   inputEquation = [];
   inputNum = '';
   tempEquation = [];
+  disabledButtons.forEach(button => {
+    button.disabled = false;
+  });
+  disabled = false;
 };
 
 function invertSign() {
@@ -118,9 +134,14 @@ function invertSign() {
     update output
   */
   if (inputNum === '' || inputNum === '0.') return;
-  inputNum = (inputNum * -1).toString();
+  if (inputNum[0] === '-') {
+    inputNum = inputNum.slice(1);
+  } else {
+    inputNum = '-' + inputNum;
+  }
   inputEquation.splice(-1, 1, inputNum);
   updateDisplay();
+  checkInputLength()
 };
 
 // attach decimal point if there is none in the output
@@ -143,6 +164,7 @@ function attachDecimal() {
     inputEquation.splice(-1, 1, inputNum);
   }
   updateDisplay();
+  checkInputLength()
 }
 
 function updateDisplay() {
@@ -162,6 +184,7 @@ function updateDisplay() {
 
 // evaluates the current input
 function evaluate(equation) {
+  // checkInputLength();
   /*
     filters any empty space if any
     if equation length is incomplete and less than 3, return the first number
@@ -172,25 +195,29 @@ function evaluate(equation) {
   let calc = equation.filter(el => el)
                      .slice(0);
   if (calc.length < 3) {
-    return Number(calc[0]);
+    return calc[0];
   }
   const lastElement = calc[calc.length - 1];
   if (operatorArray.includes(lastElement)) {
     calc = calc.slice(-1, 1);
   }
   // loops until first part of PEMDAS is complete
-  while (calc.includes("x") || calc.includes("÷") || calc.includes("%")) {
-    const operator = calc.find(el => el === "x" || el === "÷" || el === "%");
+  while (calc.includes('x') || calc.includes('÷') || calc.includes('%')) {
+    const operator = calc.find(el => el === 'x' || el === '÷' || el === '%');
     const operatorIdx = calc.indexOf(operator);
     const num1 = calc[operatorIdx - 1];
     const num2 = calc[operatorIdx + 1];
+    if (num2 === '0' && operator === '÷') {
+      clear();
+      return 'Divide by Zero';
+    }
     const total = operate(operator, num1, num2);
 
     calc.splice(operatorIdx - 1, 3, total);
   }
   // loops until second part of PEMDAS is complete
-  while (calc.includes("+") || calc.includes("-")) {
-    const operator = calc.find(el => el === "+" || el === "-");
+  while (calc.includes('+') || calc.includes('-')) {
+    const operator = calc.find(el => el === '+' || el === '-');
     const operatorIdx = calc.indexOf(operator);
     const num1 = calc[operatorIdx - 1];
     const num2 = calc[operatorIdx + 1];
@@ -198,16 +225,19 @@ function evaluate(equation) {
 
     calc.splice(operatorIdx - 1, 3, total);
   }
-  return Number(calc);
+  if (calc > 100000000000000000000) {
+    return Infinity;
+  }
+  return calc;
 }
 
 // Keyboard Support
 function keyboardInput(e) {
   e.preventDefault();
-  if (e.key >= 0 && e.key <= 9) attachNumber(e.key);
-  if (operatorMathArray.includes(e.key)) attachOperator(convertOperator(e.key));
+  if (e.key >= 0 && e.key <= 9 && disabled === false) attachNumber(e.key);
+  if (operatorMathArray.includes(e.key) && disabled === false) attachOperator(convertOperator(e.key));
   if (e.key === 'Escape') clear();
-  if (e.key === '.') attachDecimal();
+  if (e.key === '.' && disabled === false) attachDecimal();
   if (e.key === '=' || e.key === 'Enter') updateEquals();
   if (e.key === 'Backspace') deleteLastInput();
 }
@@ -220,7 +250,11 @@ function deleteLastInput() {
     deletes last entry depending on number or operator
     updates output
   */
-  if (tempEquation.length >= 1) {
+    // checkInputLength();
+  if (inputEquation[0] === 'Infinity') {
+    clear()
+    return;
+  } else if (tempEquation.length >= 1) {
     inputEquation = tempEquation;
   }
   inputEquation = inputEquation.filter(el => el)
@@ -232,6 +266,7 @@ function deleteLastInput() {
   inputNum = lastElement;
   updateDisplay();
   tempEquation = [];
+  checkInputLength();
 }
 
 function updateEquals() {
