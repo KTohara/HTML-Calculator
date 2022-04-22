@@ -290,8 +290,7 @@ function evaluate(equation) {
 
 function checkInputLength() {
   // if input display is greater than 19 characters - disable buttons
-  const inputTotal = input.innerHTML;
-  length = inputTotal.length;
+  const length = input.innerHTML.length;
   if (length >= 19) {
     disabledButtons.forEach(button => {
       button.disabled = true;
